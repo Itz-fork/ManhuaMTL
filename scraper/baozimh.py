@@ -74,7 +74,7 @@ def get_chapters(manhua_name: str, dl_to: str):
 
 def main():
     manhua_name = "wodetudijuranshinudi-ziyuewenhua"
-    download_to = f"{os.getcwd()}/manhua/{manhua_name}"
+    download_to = f"{os.getcwd()}/manhua"
     chapters = get_chapters(manhua_name, download_to)
     print(chapters)
 
