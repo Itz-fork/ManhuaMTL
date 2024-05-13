@@ -1,3 +1,5 @@
+# Copyright (c) 2024 Itz-fork
+
 import os
 import re
 import requests
@@ -14,16 +16,36 @@ def extract_keys(url):
     return matched[0]
 
 def download_chapter(url: str, bpath: str):
-    # create folders
-    print(url, bpath)
-    Path(bpath).mkdir(parents=True, exist_ok=True)
-    
+    # extract imgs
     chap = requests.get(url)
     parsed = BeautifulSoup(chap.content, "html.parser")
-    for img in parsed.select("#layout > div > div.chapter-main.scroll-mode > ul img"):
+    img_to_dl = parsed.select("#layout > div > div.chapter-main.scroll-mode > ul img")
+    ttl_imgs = len(img_to_dl)
+
+    # check if chapter has already been downloaded
+    if os.path.exists(bpath) and len(os.listdir(bpath)) == ttl_imgs:
+        print(f"    - Chapter already downloaded ({bpath})")
+        return
+
+    # create folders
+    Path(bpath).mkdir(parents=True, exist_ok=True)
+    
+    c = 0
+    for img in img_to_dl:
         img_url = img["src"]
-        path = f"{bpath}/{os.path.basename(img_url)}"
-        urllib.request.urlretrieve(img_url, path)
+        ipath = f"{bpath}/{os.path.basename(img_url)}"
+
+        # check if image already exists
+        if os.path.exists(ipath):
+            pass
+        else:
+            urllib.request.urlretrieve(img_url, ipath)
+            c += 1
+    
+    if c < ttl_imgs:
+        print(f"    - Continued to download from {ttl_imgs-c} ({c}/{ttl_imgs})")
+    else:
+        print(f"    - Downloaded {c} images of {ttl_imgs}")
 
 
 ######## Main functions ########
@@ -42,6 +64,7 @@ def get_chapters(manhua_name: str, dl_to: str):
         
         # download the chapter
         base_path = f"{dl_to}/{comic_id}/{chapter_slot}"
+        print(f"  > Downloading chapter {chapter_slot}...")
         download_chapter(chapter_url, base_path)
         
         chapter_list.append(base_path)
@@ -53,5 +76,6 @@ def main():
     manhua_name = "wodetudijuranshinudi-ziyuewenhua"
     download_to = f"{os.getcwd()}/manhua/{manhua_name}"
     chapters = get_chapters(manhua_name, download_to)
+    print(chapters)
 
 main()
