@@ -1,3 +1,6 @@
+# Note
+Development is paused due to my exams.
+
 # ManhuaMTL
 Tools for mtl of manhua
 
